@@ -556,6 +556,10 @@ func parseRedisSentinelURI(u *url.URL) (RedisConnOpt, error) {
 }
 
 func parseRedisClusterURI(u *url.URL) (RedisConnOpt, error) {
+	const errPrefix = "asynq: could not parse redis cluster uri"
+	if len(u.Host) == 0 {
+		return nil, fmt.Errorf("%s: no addresses provided", errPrefix)
+	}
 	addrs := strings.Split(u.Host, ",")
 	var password string
 	var username string

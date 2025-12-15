@@ -209,6 +209,10 @@ func TestParseRedisURIErrors(t *testing.T) {
 			"non integer for db numbers for socket",
 			"redis-socket:///some/path/to/redis?db=one",
 		},
+		{
+			"missing addresses for cluster",
+			"redis-cluster://",
+		},
 	}
 
 	for _, tc := range tests {
