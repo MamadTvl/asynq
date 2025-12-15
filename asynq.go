@@ -465,7 +465,7 @@ func (opt RedisClusterClientOpt) MakeRedisClient() interface{} {
 // ParseRedisURI parses redis uri string and returns RedisConnOpt if uri is valid.
 // It returns a non-nil error if uri cannot be parsed.
 //
-// Four URI schemes are supported, which are redis:, rediss:, redis-socket:, redis-sentinel:, and redis-cluster:.
+// Five URI schemes are supported, which are redis:, rediss:, redis-socket:, redis-sentinel:, and redis-cluster:.
 // Supported formats are:
 //
 //	redis://[:password@]host[:port][/dbnumber]
@@ -561,12 +561,11 @@ func parseRedisClusterURI(u *url.URL) (RedisConnOpt, error) {
 		return nil, fmt.Errorf("%s: no addresses provided", errPrefix)
 	}
 	addrs := strings.Split(u.Host, ",")
+	username := u.User.Username()
 	var password string
-	var username string
 	if v, ok := u.User.Password(); ok {
 		password = v
 	}
-	username = u.User.Username()
 	return RedisClusterClientOpt{Addrs: addrs, Username: username, Password: password}, nil
 }
 
