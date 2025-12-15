@@ -48,9 +48,22 @@ Task queues are used as a mechanism to distribute work across multiple machines.
 
 > ☝️ **Important Note**: Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users (_feedback on APIs are appreciated!_). The public API could change without a major version update before `v1.0.0` release.
 
-### Redis Cluster Compatibility
+### Redis Cluster Support
 
-Some of the lua scripts in this library may not be compatible with Redis Cluster.
+Asynq **fully supports Redis Cluster**! The library uses hash tags in Redis keys to ensure all operations for a given queue remain on the same cluster slot, making it compatible with Redis Cluster deployments.
+
+To use Redis Cluster, configure the client with `RedisClusterClientOpt`:
+
+```go
+redisConnOpt := asynq.RedisClusterClientOpt{
+    Addrs: []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+}
+```
+
+Or use the URI format:
+```go
+redisConnOpt, err := asynq.ParseRedisURI("redis-cluster://localhost:7000,localhost:7001,localhost:7002")
+```
 
 ## Sponsoring
 If you are using this package in production, **please consider sponsoring the project to show your support!**

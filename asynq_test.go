@@ -148,6 +148,27 @@ func TestParseRedisURI(t *testing.T) {
 				SentinelPassword: "mypassword",
 			},
 		},
+		{
+			"redis-cluster://localhost:7000,localhost:7001,localhost:7002",
+			RedisClusterClientOpt{
+				Addrs: []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+			},
+		},
+		{
+			"redis-cluster://:mypassword@localhost:7000,localhost:7001,localhost:7002",
+			RedisClusterClientOpt{
+				Addrs:    []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+				Password: "mypassword",
+			},
+		},
+		{
+			"redis-cluster://myuser:mypassword@localhost:7000,localhost:7001,localhost:7002",
+			RedisClusterClientOpt{
+				Addrs:    []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+				Username: "myuser",
+				Password: "mypassword",
+			},
+		},
 	}
 
 	for _, tc := range tests {

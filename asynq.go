@@ -465,13 +465,14 @@ func (opt RedisClusterClientOpt) MakeRedisClient() interface{} {
 // ParseRedisURI parses redis uri string and returns RedisConnOpt if uri is valid.
 // It returns a non-nil error if uri cannot be parsed.
 //
-// Three URI schemes are supported, which are redis:, rediss:, redis-socket:, and redis-sentinel:.
+// Four URI schemes are supported, which are redis:, rediss:, redis-socket:, redis-sentinel:, and redis-cluster:.
 // Supported formats are:
 //
 //	redis://[:password@]host[:port][/dbnumber]
 //	rediss://[:password@]host[:port][/dbnumber]
 //	redis-socket://[:password@]path[?db=dbnumber]
 //	redis-sentinel://[:password@]host1[:port][,host2:[:port]][,hostN:[:port]][?master=masterName]
+//	redis-cluster://[:password@]host1[:port][,host2[:port]][,hostN[:port]]
 func ParseRedisURI(uri string) (RedisConnOpt, error) {
 	u, err := url.Parse(uri)
 	if err != nil {
@@ -484,6 +485,8 @@ func ParseRedisURI(uri string) (RedisConnOpt, error) {
 		return parseRedisSocketURI(u)
 	case "redis-sentinel":
 		return parseRedisSentinelURI(u)
+	case "redis-cluster":
+		return parseRedisClusterURI(u)
 	default:
 		return nil, fmt.Errorf("asynq: unsupported uri scheme: %q", u.Scheme)
 	}
@@ -550,6 +553,17 @@ func parseRedisSentinelURI(u *url.URL) (RedisConnOpt, error) {
 		password = v
 	}
 	return RedisFailoverClientOpt{MasterName: master, SentinelAddrs: addrs, SentinelPassword: password}, nil
+}
+
+func parseRedisClusterURI(u *url.URL) (RedisConnOpt, error) {
+	addrs := strings.Split(u.Host, ",")
+	var password string
+	var username string
+	if v, ok := u.User.Password(); ok {
+		password = v
+	}
+	username = u.User.Username()
+	return RedisClusterClientOpt{Addrs: addrs, Username: username, Password: password}, nil
 }
 
 // ResultWriter is a client interface to write result data for a task.
