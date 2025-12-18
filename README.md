@@ -50,7 +50,7 @@ Task queues are used as a mechanism to distribute work across multiple machines.
 
 ### Redis Cluster Support
 
-Asynq has **experimental support** for Redis Cluster. The library uses hash tags in Redis keys (e.g., `asynq:{qname}:*`) to ensure all operations for a given queue remain on the same cluster slot.
+Asynq has **experimental support** for Redis Cluster. The library uses hash tags in Redis keys (e.g., `asynq:{qname}:*`) to ensure all operations for a given queue remain on the same cluster slot. Hash tags (the `{qname}` portion) tell Redis Cluster to use only that part for slot calculation, ensuring related keys are co-located.
 
 To use Redis Cluster, configure the client with `RedisClusterClientOpt`:
 
@@ -66,11 +66,11 @@ redisConnOpt, err := asynq.ParseRedisURI("redis-cluster://localhost:7000,localho
 ```
 
 **Important Limitations:**
-- Some Lua scripts in this library dynamically construct keys, which may not be fully compatible with Redis Cluster's requirements for pre-declaring all keys
+- Some Lua scripts in this library dynamically construct keys, which violates Redis Cluster's requirement for pre-declaring all keys. This may result in CROSSSLOT errors in certain operations.
 - Operations that access global metadata (like listing all queues/servers) may have different behavior in cluster mode
 - The library has not been extensively tested in production Redis Cluster environments
 
-**Recommendation:** For production use, Redis Sentinel (for high availability) or a single Redis instance is recommended over Redis Cluster until cluster support is more mature.
+**Recommendation:** For production use, Redis Sentinel (for high availability) or a single Redis instance is recommended over Redis Cluster until the Lua script compatibility issues are resolved.
 
 ## Sponsoring
 If you are using this package in production, **please consider sponsoring the project to show your support!**
