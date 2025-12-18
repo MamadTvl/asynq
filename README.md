@@ -48,9 +48,29 @@ Task queues are used as a mechanism to distribute work across multiple machines.
 
 > ☝️ **Important Note**: Current major version is zero (`v0.x.x`) to accommodate rapid development and fast iteration while getting early feedback from users (_feedback on APIs are appreciated!_). The public API could change without a major version update before `v1.0.0` release.
 
-### Redis Cluster Compatibility
+### Redis Cluster Support
 
-Some of the lua scripts in this library may not be compatible with Redis Cluster.
+Asynq has **experimental support** for Redis Cluster. The library uses hash tags in Redis keys (e.g., `asynq:{qname}:*`) to ensure all operations for a given queue remain on the same cluster slot. Hash tags (the `{qname}` portion) tell Redis Cluster to use only that part for slot calculation, ensuring related keys are co-located.
+
+To use Redis Cluster, configure the client with `RedisClusterClientOpt`:
+
+```go
+redisConnOpt := asynq.RedisClusterClientOpt{
+    Addrs: []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+}
+```
+
+Or use the URI format:
+```go
+redisConnOpt, err := asynq.ParseRedisURI("redis-cluster://localhost:7000,localhost:7001,localhost:7002")
+```
+
+**Important Limitations:**
+- Some Lua scripts in this library dynamically construct keys, which violates Redis Cluster's requirement for pre-declaring all keys. This may result in CROSSSLOT errors in certain operations.
+- Operations that access global metadata (like listing all queues/servers) may have different behavior in cluster mode
+- The library has not been extensively tested in production Redis Cluster environments
+
+**Recommendation:** For production use, Redis Sentinel (for high availability) or a single Redis instance is recommended over Redis Cluster until the Lua script compatibility issues are resolved.
 
 ## Sponsoring
 If you are using this package in production, **please consider sponsoring the project to show your support!**

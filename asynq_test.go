@@ -148,6 +148,27 @@ func TestParseRedisURI(t *testing.T) {
 				SentinelPassword: "mypassword",
 			},
 		},
+		{
+			"redis-cluster://localhost:7000,localhost:7001,localhost:7002",
+			RedisClusterClientOpt{
+				Addrs: []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+			},
+		},
+		{
+			"redis-cluster://:mypassword@localhost:7000,localhost:7001,localhost:7002",
+			RedisClusterClientOpt{
+				Addrs:    []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+				Password: "mypassword",
+			},
+		},
+		{
+			"redis-cluster://myuser:mypassword@localhost:7000,localhost:7001,localhost:7002",
+			RedisClusterClientOpt{
+				Addrs:    []string{"localhost:7000", "localhost:7001", "localhost:7002"},
+				Username: "myuser",
+				Password: "mypassword",
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -187,6 +208,10 @@ func TestParseRedisURIErrors(t *testing.T) {
 		{
 			"non integer for db numbers for socket",
 			"redis-socket:///some/path/to/redis?db=one",
+		},
+		{
+			"missing addresses for cluster",
+			"redis-cluster://",
 		},
 	}
 

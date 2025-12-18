@@ -14,6 +14,12 @@ specify the connection using one of RedisConnOpt types.
 	    DB:       2,
 	}
 
+For Redis Cluster:
+
+	redisConnOpt = asynq.RedisClusterClientOpt{
+	    Addrs: []string{"127.0.0.1:7000", "127.0.0.1:7001", "127.0.0.1:7002"},
+	}
+
 The Client is used to enqueue a task.
 
 	client := asynq.NewClient(redisConnOpt)
